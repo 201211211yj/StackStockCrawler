@@ -1,4 +1,4 @@
-package KospiCrawler;
+package KospiCrawler.document;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,11 +12,11 @@ import java.util.Date;
 @Setter
 @ToString
 @Document
-public class Kospi {
+public class Nasdaq {
     @Id
     private String id;
     private String code;
-    private Long price;
+    private Double price;
     private Long tradeVolume;
     private Date getDate = new Date();
 

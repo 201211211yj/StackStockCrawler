@@ -1,45 +1,49 @@
 package KospiCrawler.service;
 
+import KospiCrawler.document.Ticker;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import KospiCrawler.document.Kospi;
 
 import java.util.List;
-import java.util.StringTokenizer;
 
 @Slf4j
 @Service
-public class KospiCrawlingService {
+public class NasdaqCrawlingService {
     @Autowired
     WebClient webClient;
 
-    Mono <String> getKospiPageByCode(String code){
+    Mono <String> getNasdaqPageByCode(String url){
         log.info("Start time : {}",System.currentTimeMillis());
         return webClient.get().
-                uri("https://finance.naver.com/item/main.nhn?code={code}", code).
+                uri("https://m.kr.investing.com/equities/{url}", url).
                 retrieve().
                 bodyToMono(String.class);
     }
 
-    public void fetchKospiPages(List<String> codes) {
-        Flux <String> result = Flux.fromIterable(codes)
-                        .flatMap(this::getKospiPageByCode);
+    public void fetchNasdaqPages() {
+        Flux <Ticker> tickers = webClient.get().
+                uri("http://54.180.93.176:8080/nasdaqTickers").
+                retrieve().
+                bodyToFlux(Ticker.class);
+
+        Flux <String> result = tickers.flatMap(
+                i -> {
+                    return this.getNasdaqPageByCode(i.getUrl());
+                });
 
         result.subscribe(i->{
-
+            System.out.println(i);
             long beforeTime = System.currentTimeMillis();
 
             Document doc = Jsoup.parse(i);
+            /*
             Elements elements = doc.getElementById("middle").
                     getElementsByClass("blind").
                     first().
@@ -63,7 +67,7 @@ public class KospiCrawlingService {
             }
 
             webClient.post().
-                    uri("http://54.180.93.176:8080/kospi").
+                    uri("http://localhost:8080/kospi").
                     contentType(MediaType.APPLICATION_JSON).
                     bodyValue(kospi).
                     retrieve().
@@ -73,11 +77,9 @@ public class KospiCrawlingService {
 
             long endTime = System.currentTimeMillis();
             log.info("End time : {}",endTime);
+
+             */
         });
     }
 
-    @Bean
-    public WebClient webClient() {
-        return WebClient.create();
-    }
 }
