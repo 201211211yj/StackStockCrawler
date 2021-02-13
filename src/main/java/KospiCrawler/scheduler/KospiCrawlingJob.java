@@ -10,16 +10,16 @@ import java.util.List;
 
 @Component
 public class KospiCrawlingJob {
-    /*
+
     @Autowired
     KospiCrawlingService kospiCrawlingService;
 
-    @Scheduled(cron = "")
+    @Scheduled(cron = "0 10 * * * ?")
     void kospiCrawlingJob(){
         List<String> codes = new ArrayList<>();
-        codes.add("plug-power");
+        codes.add("000660");
         kospiCrawlingService.fetchKospiPages(codes);
     }
-    */
+
 
 }
